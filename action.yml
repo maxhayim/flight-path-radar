@@ -1,0 +1,39 @@
+name: Flight Path
+description: Fly a stealth plane across your GitHub contribution grid on a radar screen, as an animated SVG.
+author: maxhayim
+branding:
+  icon: navigation
+  color: green
+
+inputs:
+  github_user_name:
+    description: GitHub user whose contribution grid to fly over.
+    required: true
+  outputs:
+    description: |
+      One output file per line. Add ?plane=<name> to pick the plane for that file.
+      Planes: b2, f117, f22, sr71, biplane. Example: dist/flight-path.svg?plane=f117
+    required: false
+    default: dist/flight-path.svg
+  plane:
+    description: Default plane for outputs that don't set ?plane=.
+    required: false
+    default: b2
+  github_token:
+    description: Token used to read the contribution calendar.
+    required: false
+    default: ${{ github.token }}
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 20
+    - shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+        FLIGHT_PATH_PLANE: ${{ inputs.plane }}
+        FP_USER: ${{ inputs.github_user_name }}
+        FP_OUTPUTS: ${{ inputs.outputs }}
+      run: node "${{ github.action_path }}/src/cli.mjs" "$FP_USER" "$FP_OUTPUTS"
