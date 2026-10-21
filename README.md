@@ -31,8 +31,8 @@
 
 <ul>
   <li><strong>Radar-screen look:</strong> dark scope with grid lines, dashed range rings, a crosshair and a rotating sweep</li>
-  <li><strong>Two themes:</strong> the radar scope on its own, or a <code>cockpit</code> frame that matches <a href="https://github.com/maxhayim/cockpit-telemetry">Cockpit Telemetry</a> (see <a href="#themes">Themes</a>)</li>
-  <li><strong>Five planes</strong>, chosen per output file with <code>?plane=</code>: B-2 Spirit, F-117 Nighthawk, F-22 Raptor, SR-71 Blackbird and a Biplane (see <a href="#planes">Planes</a>)</li>
+  <li><strong>Two themes:</strong> the radar scope on its own, or a <code>cockpit</code> frame that matches <a href="https://github.com/maxhayim/cockpit-telemetry">Cockpit Telemetry</a> (see the <a href="#gallery">Gallery</a>)</li>
+  <li><strong>Five planes</strong>, chosen per output file with <code>?plane=</code>: B-2 Spirit, F-117 Nighthawk, F-22 Raptor, SR-71 Blackbird and a Biplane (see the <a href="#gallery">Gallery</a>)</li>
   <li><strong>Variable speed:</strong> slow between neighbouring blips, eased acceleration across long gaps</li>
   <li><strong>Lock-on effect:</strong> each contributed day flashes amber and goes dark as the plane passes, with a dotted track left behind</li>
   <li>Busiest days glow brighter than quieter ones, using GitHub's own four contribution levels</li>
@@ -42,32 +42,68 @@
   <li>Works with the built-in <code>GITHUB_TOKEN</code>, and falls back to the public contributions page when no token is set</li>
 </ul>
 
-<h2>Planes</h2>
+<h2>Gallery</h2>
 
-<table>
-  <tr><th>Plane</th><th><code>plane=</code></th><th>Preview</th></tr>
-  <tr><td>B-2 Spirit (default)</td><td><code>b2</code></td><td><a href="examples/b2.svg">examples/b2.svg</a></td></tr>
-  <tr><td>F-117 Nighthawk</td><td><code>f117</code></td><td><a href="examples/f117.svg">examples/f117.svg</a></td></tr>
-  <tr><td>F-22 Raptor</td><td><code>f22</code></td><td><a href="examples/f22.svg">examples/f22.svg</a></td></tr>
-  <tr><td>SR-71 Blackbird</td><td><code>sr71</code></td><td><a href="examples/sr71.svg">examples/sr71.svg</a></td></tr>
-  <tr><td>Biplane</td><td><code>biplane</code></td><td><a href="examples/biplane.svg">examples/biplane.svg</a></td></tr>
-</table>
+<p>Every example below is live output from this Action. Pick a plane and a theme, then copy the setting under its preview into your workflow. You can mix them, e.g. <code>dist/flight-path.svg?plane=sr71&amp;theme=cockpit</code>.</p>
 
-<h2>Themes</h2>
+<p><strong>Planes:</strong> <a href="#b2">B-2 Spirit</a> · <a href="#f117">F-117 Nighthawk</a> · <a href="#f22">F-22 Raptor</a> · <a href="#sr71">SR-71 Blackbird</a> · <a href="#biplane">Biplane</a><br>
+<strong>Themes:</strong> <a href="#radar">Radar</a> · <a href="#cockpit">Cockpit</a> · <a href="#cockpit-without-titles">Cockpit without titles</a></p>
 
-<p>Choose a theme per output file with <code>?theme=</code>, or for every file with the <code>theme</code> input.</p>
+<h3 id="planes">Planes</h3>
 
-<table>
-  <tr><th>Theme</th><th><code>theme=</code></th><th>Preview</th></tr>
-  <tr><td>Radar (default): the scope on its own, sized to the grid</td><td><code>radar</code></td><td><a href="examples/b2.svg">examples/b2.svg</a></td></tr>
-  <tr><td>Cockpit: 960px wide, framed to sit under <a href="https://github.com/maxhayim/cockpit-telemetry">Cockpit Telemetry</a> with the same header, bezel panel, corners and annunciator strip</td><td><code>cockpit</code></td><td><a href="examples/cockpit.svg">examples/cockpit.svg</a></td></tr>
-</table>
+<p>Set with <code>?plane=&lt;name&gt;</code> on an output, or the <code>plane</code> input. Shown here in the radar theme.</p>
 
-<p align="center">
-  <img src="examples/cockpit.svg" alt="Flight Path Radar: cockpit theme" width="100%"/>
-</p>
+<h4 id="b2">B-2 Spirit</h4>
 
-<p>To hide the cockpit theme's header (the <code>FLIGHT PATH RADAR</code> title, your callsign and the time span) and the panel title, set <code>titles: false</code> or add <code>?titles=false</code> to an output. The panel moves up to fill the space; the annunciator strip stays. The radar theme has no visible titles, so this option has no effect there.</p>
+<p>Flying wing with a sawtooth trailing edge. The default. Use <code>plane: b2</code> or <code>?plane=b2</code>.</p>
+
+<p align="center"><img src="examples/b2.svg" alt="Flight Path Radar: B-2 Spirit" width="100%"/></p>
+
+<h4 id="f117">F-117 Nighthawk</h4>
+
+<p>Faceted arrowhead with a notched tail. Use <code>plane: f117</code> or <code>?plane=f117</code>.</p>
+
+<p align="center"><img src="examples/f117.svg" alt="Flight Path Radar: F-117 Nighthawk" width="100%"/></p>
+
+<h4 id="f22">F-22 Raptor</h4>
+
+<p>Diamond wings and angled tailplanes. Use <code>plane: f22</code> or <code>?plane=f22</code>.</p>
+
+<p align="center"><img src="examples/f22.svg" alt="Flight Path Radar: F-22 Raptor" width="100%"/></p>
+
+<h4 id="sr71">SR-71 Blackbird</h4>
+
+<p>Long chined fuselage, delta wing and two engine nacelles. Use <code>plane: sr71</code> or <code>?plane=sr71</code>.</p>
+
+<p align="center"><img src="examples/sr71.svg" alt="Flight Path Radar: SR-71 Blackbird" width="100%"/></p>
+
+<h4 id="biplane">Biplane</h4>
+
+<p>Stacked wings and a spinning propeller. Use <code>plane: biplane</code> or <code>?plane=biplane</code>.</p>
+
+<p align="center"><img src="examples/biplane.svg" alt="Flight Path Radar: Biplane" width="100%"/></p>
+
+<h3 id="themes">Themes</h3>
+
+<p>Set with <code>?theme=&lt;name&gt;</code> on an output, or the <code>theme</code> input. Shown here with the B-2.</p>
+
+<h4 id="radar">Radar</h4>
+
+<p>The default: the radar scope on its own, sized to your contribution grid. Use <code>theme: radar</code> or <code>?theme=radar</code>.</p>
+
+<p align="center"><img src="examples/b2.svg" alt="Flight Path Radar: radar theme" width="100%"/></p>
+
+<h4 id="cockpit">Cockpit</h4>
+
+<p>960px wide and framed to sit with <a href="https://github.com/maxhayim/cockpit-telemetry">Cockpit Telemetry</a>: the same header, bezel panel, corners, colours and annunciator strip. Use <code>theme: cockpit</code> or <code>?theme=cockpit</code>.</p>
+
+<p align="center"><img src="examples/cockpit.svg" alt="Flight Path Radar: cockpit theme" width="100%"/></p>
+
+<h4 id="cockpit-without-titles">Cockpit without titles</h4>
+
+<p>The cockpit theme with the header (the <code>FLIGHT PATH RADAR</code> title, your callsign and the time span) and the panel title hidden. The panel moves up to fill the space; the annunciator strip stays. Use <code>titles: false</code> or <code>?theme=cockpit&amp;titles=false</code>. The radar theme has no visible titles, so this option has no effect there.</p>
+
+<p align="center"><img src="examples/cockpit-no-titles.svg" alt="Flight Path Radar: cockpit theme without titles" width="100%"/></p>
 
 <h2>Requirements</h2>
 
