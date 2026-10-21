@@ -61,43 +61,45 @@
 
 <h2>Installation and Setup</h2>
 
-<ol>
-  <li>In your profile repository, create <code>.github/workflows/flight-path.yml</code>:
-    <pre><code>name: Flight Path Radar
+1. In your profile repository, create `.github/workflows/flight-path.yml`:
 
-on:
-  schedule:
-    - cron: "0 */12 * * *"   # every 12 hours
-  workflow_dispatch:
+   ```yaml
+   name: Flight Path Radar
 
-permissions:
-  contents: write
+   on:
+     schedule:
+       - cron: "0 */12 * * *"   # every 12 hours
+     workflow_dispatch:
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: maxhayim/flight-path-radar@v1
-        with:
-          github_user_name: ${{ github.repository_owner }}
-          outputs: |
-            dist/flight-path.svg
-            dist/flight-path-f117.svg?plane=f117
+   permissions:
+     contents: write
 
-      - uses: crazy-max/ghaction-github-pages@v4
-        with:
-          target_branch: output
-          build_dir: dist
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}</code></pre>
-  </li>
+   jobs:
+     build:
+       runs-on: ubuntu-latest
+       steps:
+         - uses: maxhayim/flight-path-radar@v1
+           with:
+             github_user_name: ${{ github.repository_owner }}
+             outputs: |
+               dist/flight-path.svg
+               dist/flight-path-f117.svg?plane=f117
 
-  <li>Run the workflow once from the <strong>Actions</strong> tab (<strong>Run workflow</strong>), or wait for the schedule.</li>
+         - uses: crazy-max/ghaction-github-pages@v4
+           with:
+             target_branch: output
+             build_dir: dist
+           env:
+             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+   ```
 
-  <li>Add the image to your profile <code>README.md</code>:
-    <pre><code>&lt;img src="https://raw.githubusercontent.com/&lt;you&gt;/&lt;you&gt;/output/flight-path.svg" alt="Flight Path Radar" width="100%"&gt;</code></pre>
-  </li>
-</ol>
+2. Run the workflow once from the **Actions** tab (**Run workflow**), or wait for the schedule.
+
+3. Add the image to your profile `README.md`:
+
+   ```html
+   <img src="https://raw.githubusercontent.com/<you>/<you>/output/flight-path.svg" alt="Flight Path Radar" width="100%">
+   ```
 
 <h2>Usage</h2>
 
