@@ -1,6 +1,3 @@
-> [!WARNING]
-> **Flight Path Radar is under active development** and not yet stable, inputs and output may still change. Give the repo a **Star** and **Watch** it to get notified when a new release lands.
-
 <p align="center">
   <img src="examples/b2.svg" alt="Flight Path Radar: B-2 Spirit over a contribution grid" width="100%"/>
 </p>
