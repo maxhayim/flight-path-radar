@@ -1,4 +1,4 @@
-# Flight Path
+# Flight Path Radar
 
 A GitHub Action that turns your contribution grid into a radar screen. A stealth plane flies a route through every day you contributed, locking on to each blip as it passes. It moves slowly between nearby blips and speeds up across empty stretches.
 
@@ -6,7 +6,7 @@ A GitHub Action that turns your contribution grid into a radar screen. A stealth
   <img src="examples/b2.svg" alt="Flight Path: B-2 Spirit over a contribution grid" width="100%">
 </p>
 
-Inspired by [Platane/snk](https://github.com/Platane/snk), the contribution-grid snake. Flight Path is a separate project that keeps the same idea and swaps the snake for aircraft.
+Inspired by [Platane/snk](https://github.com/Platane/snk), the contribution-grid snake. Flight Path Radar is a separate project that keeps the same idea and swaps the snake for aircraft.
 
 ## Planes
 
@@ -37,7 +37,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: maxhayim/flight-path@v1
+      - uses: maxhayim/flight-path-radar@v1
         with:
           github_user_name: ${{ github.repository_owner }}
           outputs: |
