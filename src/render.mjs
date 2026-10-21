@@ -74,7 +74,7 @@ function samplePath(segs) {
 const toD = (segs) => `M${segs[0].a.map(f).join(",")}` +
   segs.map((g) => `C${g.c1.map(f).join(",")} ${g.c2.map(f).join(",")} ${g.p.map(f).join(",")}`).join("");
 
-export function buildSvg(cells, { plane = DEFAULT_PLANE, theme = DEFAULT_THEME, user = "", range = null } = {}) {
+export function buildSvg(cells, { plane = DEFAULT_PLANE, theme = DEFAULT_THEME, user = "", range = null, titles = true } = {}) {
   const craft = PLANES[plane];
   if (!craft) throw new Error(`Unknown plane "${plane}". Choose one of: ${Object.keys(PLANES).join(", ")}`);
   const T = THEMES[theme];
@@ -178,7 +178,7 @@ ${body}
 
   const targets = cells.filter((c) => c.level > 0).length;
   const span = range ? (range.from.endsWith("-01-01") && range.to === `${range.from.slice(0, 4)}-12-31` ? range.from.slice(0, 4) : `${range.from} TO ${range.to}`) : "LAST 12 MONTHS";
-  return cockpitFrame(T, { defs, body, scale, W, H, user, span, craft, targets, days: cells.length, loop: Math.round(dur) });
+  return cockpitFrame(T, { defs, body, scale, W, H, user, span, craft, targets, days: cells.length, loop: Math.round(dur), titles });
 }
 
 const text = (x, y, s, { size = 11, fill, anchor = "start", weight = "", extra = "", children = "" }) =>
@@ -186,8 +186,10 @@ const text = (x, y, s, { size = 11, fill, anchor = "start", weight = "", extra =
   `${weight ? ` font-weight="${weight}"` : ""}${extra}>${esc(s)}${children}</text>`;
 
 // Header, bezel panel with corner brackets and an annunciator strip, laid out like Cockpit Telemetry.
-function cockpitFrame(T, { defs, body, scale, W, H, user, span, craft, targets, days, loop }) {
-  const px = GUTTER, py = 56, pw = COCKPIT_W - GUTTER * 2, ph = 26 + H * scale + 12;
+// With titles off, the header (title, callsign, time span) and the panel title are left out and the panel moves up.
+function cockpitFrame(T, { defs, body, scale, W, H, user, span, craft, targets, days, loop, titles }) {
+  const top = titles ? 26 : 12;
+  const px = GUTTER, py = titles ? 56 : GUTTER, pw = COCKPIT_W - GUTTER * 2, ph = top + H * scale + 12;
   const ay = py + ph + 10, CH = ay + 20 + GUTTER;
   const b = 10, c = (x, y, dx, dy) => `M${x + dx * b},${y}L${x},${y}L${x},${y + dy * b}`;
   const lamps = [["RADAR ACTIVE", true], [`TGT ${targets}`, false], [`CRAFT ${craft.name.toUpperCase()}`, false],
@@ -203,19 +205,23 @@ function cockpitFrame(T, { defs, body, scale, W, H, user, span, craft, targets, 
   }).join("\n");
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${COCKPIT_W} ${f(CH)}" width="${COCKPIT_W}" height="${f(CH)}" font-family="${FONT}">
-<title>Flight Path Radar: ${esc(user)}</title>
+<title>${titles && user ? `Flight Path Radar: ${esc(user)}` : "Flight Path Radar"}</title>
 <rect width="${COCKPIT_W}" height="${f(CH)}" rx="10" fill="${T.frame}"/>
-${text(GUTTER, 34, "FLIGHT PATH RADAR", { size: 18, fill: T.text, weight: 700, extra: ` letter-spacing="3"` })}
-${user ? text(286, 34, `CALLSIGN ${user.toUpperCase()}`, { size: 11, fill: T.lock, extra: ` letter-spacing="1.5"` }) : ""}
-${text(COCKPIT_W - GUTTER, 34, span, { size: 14, fill: T.text, anchor: "end" })}
-<line x1="${GUTTER}" y1="46" x2="${COCKPIT_W - GUTTER}" y2="46" stroke="${T.border}"/>
+${titles ? header(T, user, span) : ""}
 <rect x="${px}" y="${py}" width="${pw}" height="${f(ph)}" rx="6" fill="${T.panel}" stroke="${T.border}"/>
 <path d="${c(px, py, 1, 1)}${c(px + pw, py, -1, 1)}${c(px, py + ph, 1, -1)}${c(px + pw, py + ph, -1, -1)}" fill="none" stroke="${T.dim}" stroke-width="1.5"/>
-${text(px + 12, py + 16, "TACTICAL RADAR", { size: 10, fill: T.dim, weight: 700, extra: ` letter-spacing="1.5"` })}
-<g transform="translate(${px + 12} ${py + 26}) scale(${r(scale)})">
+${titles ? text(px + 12, py + 16, "TACTICAL RADAR", { size: 10, fill: T.dim, weight: 700, extra: ` letter-spacing="1.5"` }) : ""}
+<g transform="translate(${px + 12} ${py + top}) scale(${r(scale)})">
 ${defs}
 ${body}
 </g>
 ${strip}
 </svg>`;
 }
+
+const header = (T, user, span) => [
+  text(GUTTER, 34, "FLIGHT PATH RADAR", { size: 18, fill: T.text, weight: 700, extra: ` letter-spacing="3"` }),
+  user ? text(286, 34, `CALLSIGN ${user.toUpperCase()}`, { size: 11, fill: T.lock, extra: ` letter-spacing="1.5"` }) : "",
+  text(COCKPIT_W - GUTTER, 34, span, { size: 14, fill: T.text, anchor: "end" }),
+  `<line x1="${GUTTER}" y1="46" x2="${COCKPIT_W - GUTTER}" y2="46" stroke="${T.border}"/>`,
+].join("\n");

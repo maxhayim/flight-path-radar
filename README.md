@@ -67,6 +67,8 @@
   <img src="examples/cockpit.svg" alt="Flight Path Radar: cockpit theme" width="100%"/>
 </p>
 
+<p>To hide the cockpit theme's header (the <code>FLIGHT PATH RADAR</code> title, your callsign and the time span) and the panel title, set <code>titles: false</code> or add <code>?titles=false</code> to an output. The panel moves up to fill the space; the annunciator strip stays. The radar theme has no visible titles, so this option has no effect there.</p>
+
 <h2>Requirements</h2>
 
 <ul>
@@ -125,9 +127,10 @@
 <table>
   <tr><th>Input</th><th>Default</th><th>Description</th></tr>
   <tr><td><code>github_user_name</code></td><td>(required)</td><td>User whose contribution grid to fly over.</td></tr>
-  <tr><td><code>outputs</code></td><td><code>dist/flight-path.svg</code></td><td>One file per line. Add <code>?plane=&lt;name&gt;</code> and/or <code>?theme=&lt;name&gt;</code> to choose them for that file, e.g. <code>dist/flight-path.svg?plane=f117&amp;theme=cockpit</code>.</td></tr>
+  <tr><td><code>outputs</code></td><td><code>dist/flight-path.svg</code></td><td>One file per line. Add <code>?plane=&lt;name&gt;</code>, <code>?theme=&lt;name&gt;</code> and/or <code>?titles=false</code> to set them for that file, e.g. <code>dist/flight-path.svg?plane=f117&amp;theme=cockpit</code>.</td></tr>
   <tr><td><code>plane</code></td><td><code>b2</code></td><td>Plane for outputs that don't set <code>?plane=</code>.</td></tr>
   <tr><td><code>theme</code></td><td><code>radar</code></td><td>Theme for outputs that don't set <code>?theme=</code>: <code>radar</code> or <code>cockpit</code>.</td></tr>
+  <tr><td><code>titles</code></td><td><code>true</code></td><td>Set to <code>false</code> to hide the cockpit theme's header (title, callsign, time span) and panel title.</td></tr>
   <tr><td><code>year</code></td><td>(empty)</td><td>Calendar year to show, e.g. <code>2025</code>. Can't be combined with <code>from</code>/<code>to</code>.</td></tr>
   <tr><td><code>from</code></td><td>(empty)</td><td>Start date (<code>YYYY-MM-DD</code>) of a custom range.</td></tr>
   <tr><td><code>to</code></td><td>(empty)</td><td>End date (<code>YYYY-MM-DD</code>) of a custom range. Defaults to one year after <code>from</code>, or today.</td></tr>

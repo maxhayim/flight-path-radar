@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Usage: node src/cli.mjs [--year YYYY | --from YYYY-MM-DD --to YYYY-MM-DD] <github_user> <output.svg[?plane=b2&theme=cockpit]> [more outputs...]
+// Usage: node src/cli.mjs [--year YYYY | --from YYYY-MM-DD --to YYYY-MM-DD] <github_user> <output.svg[?plane=b2&theme=cockpit&titles=false]> [more outputs...]
 // Reads GITHUB_TOKEN from the environment when set.
 import fs from "node:fs";
 import path from "node:path";
@@ -7,7 +7,7 @@ import { getGrid, resolveRange } from "./grid.mjs";
 import { buildSvg, DEFAULT_THEME } from "./render.mjs";
 import { DEFAULT_PLANE } from "./planes.mjs";
 
-const USAGE = "Usage: node src/cli.mjs [--year YYYY | --from YYYY-MM-DD --to YYYY-MM-DD] <github_user> <output.svg[?plane=b2&theme=cockpit]> [more outputs...]";
+const USAGE = "Usage: node src/cli.mjs [--year YYYY | --from YYYY-MM-DD --to YYYY-MM-DD] <github_user> <output.svg[?plane=b2&theme=cockpit&titles=false]> [more outputs...]";
 
 // --year/--from/--to flags, falling back to FLIGHT_PATH_YEAR/FROM/TO (set by the Action).
 const opts = { year: process.env.FLIGHT_PATH_YEAR, from: process.env.FLIGHT_PATH_FROM, to: process.env.FLIGHT_PATH_TO };
@@ -41,14 +41,15 @@ for (const out of outputs) {
   const params = new URLSearchParams(query);
   const plane = params.get("plane") || process.env.FLIGHT_PATH_PLANE || DEFAULT_PLANE;
   const theme = params.get("theme") || process.env.FLIGHT_PATH_THEME || DEFAULT_THEME;
+  const titles = !/^(false|no|off|0)$/i.test(params.get("titles") || process.env.FLIGHT_PATH_TITLES || "true");
   let svg;
   try {
-    svg = buildSvg(cells, { plane, theme, user, range });
+    svg = buildSvg(cells, { plane, theme, user, range, titles });
   } catch (e) {
     console.error(`Error: ${e.message}`);
     process.exit(1);
   }
   fs.mkdirSync(path.dirname(path.resolve(file)), { recursive: true });
   fs.writeFileSync(file, svg);
-  console.log(`wrote ${file} (${plane}, ${theme})`);
+  console.log(`wrote ${file} (${plane}, ${theme}${titles ? "" : ", no titles"})`);
 }
