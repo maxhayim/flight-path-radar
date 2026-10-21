@@ -19,6 +19,18 @@ inputs:
     description: Default plane for outputs that don't set ?plane=.
     required: false
     default: b2
+  year:
+    description: Calendar year to show, e.g. 2025. Leave empty for the last 12 months. Can't be combined with from/to.
+    required: false
+    default: ""
+  from:
+    description: Start date (YYYY-MM-DD) of a custom range. The range can be at most one year.
+    required: false
+    default: ""
+  to:
+    description: End date (YYYY-MM-DD) of a custom range. Defaults to one year after from, or today.
+    required: false
+    default: ""
   github_token:
     description: Token used to read the contribution calendar.
     required: false
@@ -34,6 +46,9 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
         FLIGHT_PATH_PLANE: ${{ inputs.plane }}
+        FLIGHT_PATH_YEAR: ${{ inputs.year }}
+        FLIGHT_PATH_FROM: ${{ inputs.from }}
+        FLIGHT_PATH_TO: ${{ inputs.to }}
         FP_USER: ${{ inputs.github_user_name }}
         FP_OUTPUTS: ${{ inputs.outputs }}
       run: node "${{ github.action_path }}/src/cli.mjs" "$FP_USER" "$FP_OUTPUTS"

@@ -36,6 +36,7 @@
   <li><strong>Lock-on effect:</strong> each contributed day flashes amber and goes dark as the plane passes, with a dotted track left behind</li>
   <li>Busiest days glow brighter than quieter ones, using GitHub's own four contribution levels</li>
   <li>Several output files in one run, each with its own plane</li>
+  <li><strong>Any calendar year or date range</strong>, not just the last 12 months (see <a href="#calendar-year-and-date-ranges">Calendar Year and Date Ranges</a>)</li>
   <li><strong>Zero dependencies:</strong> plain Node.js, nothing to install</li>
   <li>Works with the built-in <code>GITHUB_TOKEN</code>, and falls back to the public contributions page when no token is set</li>
 </ul>
@@ -110,21 +111,49 @@
   <tr><td><code>github_user_name</code></td><td>(required)</td><td>User whose contribution grid to fly over.</td></tr>
   <tr><td><code>outputs</code></td><td><code>dist/flight-path.svg</code></td><td>One file per line. Add <code>?plane=&lt;name&gt;</code> to choose the plane for that file.</td></tr>
   <tr><td><code>plane</code></td><td><code>b2</code></td><td>Plane for outputs that don't set <code>?plane=</code>.</td></tr>
+  <tr><td><code>year</code></td><td>(empty)</td><td>Calendar year to show, e.g. <code>2025</code>. Can't be combined with <code>from</code>/<code>to</code>.</td></tr>
+  <tr><td><code>from</code></td><td>(empty)</td><td>Start date (<code>YYYY-MM-DD</code>) of a custom range.</td></tr>
+  <tr><td><code>to</code></td><td>(empty)</td><td>End date (<code>YYYY-MM-DD</code>) of a custom range. Defaults to one year after <code>from</code>, or today.</td></tr>
   <tr><td><code>github_token</code></td><td><code>github.token</code></td><td>Token used to read the contribution calendar.</td></tr>
 </table>
+
+<h3>Calendar Year and Date Ranges</h3>
+
+<p>By default the grid covers the last 12 months, the same as your GitHub profile. Set <code>year</code> to show a whole calendar year, or <code>from</code>/<code>to</code> for a custom range:</p>
+
+```yaml
+      - uses: maxhayim/flight-path-radar@v1
+        with:
+          github_user_name: ${{ github.repository_owner }}
+          year: 2025
+          outputs: dist/flight-path-2025.svg
+```
+
+```yaml
+      - uses: maxhayim/flight-path-radar@v1
+        with:
+          github_user_name: ${{ github.repository_owner }}
+          from: 2026-03-01
+          to: 2026-09-30
+          outputs: dist/flight-path-summer.svg
+```
+
+<p>GitHub only returns up to one year of contributions per request, so a range can be at most one year long. If you set only <code>from</code>, the range runs one year forward (or to today); if you set only <code>to</code>, it runs one year back.</p>
 
 <h3>Running Locally</h3>
 
 <pre><code>git clone https://github.com/maxhayim/flight-path-radar.git
 cd flight-path-radar
-GITHUB_TOKEN=$(gh auth token) node src/cli.mjs &lt;user&gt; 'out/flight-path.svg?plane=sr71'</code></pre>
+GITHUB_TOKEN=$(gh auth token) node src/cli.mjs &lt;user&gt; 'out/flight-path.svg?plane=sr71'
+GITHUB_TOKEN=$(gh auth token) node src/cli.mjs --year 2025 &lt;user&gt; out/flight-path-2025.svg
+GITHUB_TOKEN=$(gh auth token) node src/cli.mjs --from 2026-03-01 --to 2026-09-30 &lt;user&gt; out/summer.svg</code></pre>
 
 <p>Without <code>GITHUB_TOKEN</code> it reads the public contributions page instead.</p>
 
 <h2>How It Works</h2>
 
 <ol>
-  <li><strong>Fetch the grid.</strong> The contribution calendar is read from the GitHub GraphQL API (or the public contributions page), giving every day's position and contribution level.</li>
+  <li><strong>Fetch the grid.</strong> The contribution calendar is read from the GitHub GraphQL API (or the public contributions page), for the last 12 months or the chosen year or range, giving every day's position and contribution level.</li>
   <li><strong>Plan the route.</strong> Starting off the left edge, the plane visits the nearest unvisited contributed day each time, then exits to the right. The route is smoothed into curves so the plane banks through turns.</li>
   <li><strong>Time the flight.</strong> Each hop is slow for its first two cells and fast beyond that, with eased acceleration on long hops. Every lock-on effect and the dotted track are timed to the same schedule.</li>
   <li><strong>Render.</strong> Everything is written as SVG animation (<code>animateMotion</code>, <code>animate</code>), so the file plays on its own in any browser and inside GitHub's image proxy.</li>
@@ -154,6 +183,7 @@ Full license text: https://opensource.org/licenses/MIT
 
 <ul>
   <li><a href="https://github.com/Platane/snk">Platane/snk</a>: the contribution-grid snake that inspired this project</li>
+  <li><a href="https://github.com/Platane/snk/pull/205">Platane/snk#205</a>: the calendar year and date range proposal that inspired the <code>year</code>/<code>from</code>/<code>to</code> inputs</li>
   <li><a href="https://github.com/crazy-max/ghaction-github-pages">crazy-max/ghaction-github-pages</a>: used in the example workflow to publish the SVG</li>
 </ul>
 
