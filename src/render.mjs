@@ -1,4 +1,5 @@
 // Contribution grid -> animated radar-scope SVG with a plane flying through every contributed day.
+// Themes: "radar" (the scope on its own) or "cockpit" (the scope framed to match Cockpit Telemetry).
 import { PLANES, DEFAULT_PLANE } from "./planes.mjs";
 
 const CELL = 11, STEP = 14, MARGIN = 28, ROWS = 7;
@@ -8,11 +9,25 @@ const NEAR = 2 * STEP;        // hops up to this length stay slow
 const HOLD = 3;               // pause after the run, seconds
 const SWEEP = 4;              // radar sweep period, seconds
 
-const T = {
-  bg: "#03140b", grid: "#0f3d22", ring: "#14522d", empty: "#082516",
-  levels: ["#082516", "#11532c", "#1c8443", "#2fc062", "#5dff95"],
-  sweep: "#3dff7f", lock: "#ffb347", plane: "#0a0d0b", edge: "#5dff95", track: "#5dff95",
+export const THEMES = {
+  radar: {
+    bg: "#03140b", grid: "#0f3d22", ring: "#14522d", empty: "#082516",
+    levels: ["#082516", "#11532c", "#1c8443", "#2fc062", "#5dff95"],
+    sweep: "#3dff7f", lock: "#ffb347", plane: "#0a0d0b", edge: "#5dff95", track: "#5dff95",
+  },
+  // Cockpit Telemetry's palette: the scope is a display set into a bezel panel.
+  cockpit: {
+    bg: "#020d07", grid: "#0f3d22", ring: "#14522d", empty: "#0b3a1f",
+    levels: ["#0b3a1f", "#14522d", "#1c8443", "#2fc062", "#5dff95"],
+    sweep: "#5dff95", lock: "#ffb347", plane: "#0a0d0b", edge: "#5dff95", track: "#5dff95",
+    frame: "#020d07", panel: "#03140b", border: "#14522d", text: "#5dff95", dim: "#2fc062", lit: "#0b3a1f",
+  },
 };
+export const DEFAULT_THEME = "radar";
+
+// Cockpit Telemetry layout constants: 960px canvas, 16px gutters, 10px canvas and 6px panel corners.
+const COCKPIT_W = 960, GUTTER = 16, FONT = "ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 const center = (c) => [MARGIN + c.col * STEP + CELL / 2, MARGIN + c.row * STEP + CELL / 2];
 const f = (n) => +n.toFixed(2);
@@ -59,9 +74,12 @@ function samplePath(segs) {
 const toD = (segs) => `M${segs[0].a.map(f).join(",")}` +
   segs.map((g) => `C${g.c1.map(f).join(",")} ${g.c2.map(f).join(",")} ${g.p.map(f).join(",")}`).join("");
 
-export function buildSvg(cells, { plane = DEFAULT_PLANE } = {}) {
+export function buildSvg(cells, { plane = DEFAULT_PLANE, theme = DEFAULT_THEME, user = "", range = null } = {}) {
   const craft = PLANES[plane];
   if (!craft) throw new Error(`Unknown plane "${plane}". Choose one of: ${Object.keys(PLANES).join(", ")}`);
+  const T = THEMES[theme];
+  if (!T) throw new Error(`Unknown theme "${theme}". Choose one of: ${Object.keys(THEMES).join(", ")}`);
+  const cockpit = theme === "cockpit";
   const cols = Math.max(...cells.map((c) => c.col)) + 1;
   const W = MARGIN * 2 + cols * STEP, H = MARGIN * 2 + ROWS * STEP;
   const cx = W / 2, cy = H / 2, R = Math.hypot(cx, cy) + 4;
@@ -85,6 +103,10 @@ export function buildSvg(cells, { plane = DEFAULT_PLANE } = {}) {
   const anim = (attr, values, kt) =>
     `<animate attributeName="${attr}" values="${values}" keyTimes="${kt}" dur="${r(dur)}s" repeatCount="indefinite"/>`;
 
+  // In the cockpit frame the scope is scaled to fill the panel; keep its corners at 4px on screen.
+  const scale = cockpit ? (COCKPIT_W - GUTTER * 2 - 24) / W : 1;
+  const scopeRx = f((cockpit ? 4 : 8) / scale);
+
   const passTime = (c) => {
     const [x, y] = center(c);
     let best = pts[0], bd = Infinity;
@@ -93,7 +115,7 @@ export function buildSvg(cells, { plane = DEFAULT_PLANE } = {}) {
   };
 
   // Scope background: grid lines, range rings, crosshair.
-  const scope = [`<rect width="${W}" height="${H}" rx="8" fill="${T.bg}"/>`];
+  const scope = [`<rect width="${W}" height="${H}" rx="${scopeRx}" fill="${T.bg}"/>`];
   for (let x = MARGIN - STEP / 2 + STEP * 4; x < W; x += STEP * 4)
     scope.push(`<line x1="${f(x)}" y1="0" x2="${f(x)}" y2="${H}" stroke="${T.grid}" stroke-width="0.5"/>`);
   for (let y = MARGIN - STEP / 2; y <= H; y += STEP * 2)
@@ -132,15 +154,13 @@ export function buildSvg(cells, { plane = DEFAULT_PLANE } = {}) {
   const d = toD(segs);
   const track = `<path d="${d}" fill="none" stroke="${T.track}" stroke-opacity="0.3" stroke-width="1" stroke-dasharray="1 4" mask="url(#reveal)"/>`;
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
-<title>Flight Path: ${craft.name}</title>
-<defs>
-  <clipPath id="scope"><rect width="${W}" height="${H}" rx="8"/></clipPath>
+  const defs = `<defs>
+  <clipPath id="scope"><rect width="${W}" height="${H}" rx="${scopeRx}"/></clipPath>
   <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
   <mask id="reveal"><path d="${d}" fill="none" stroke="#fff" stroke-width="4" stroke-dasharray="${f(length)} ${f(length)}" stroke-dashoffset="${f(length)}">
     <animate attributeName="stroke-dashoffset" values="${[...bounds.map((b) => f(length - b)), 0].join(";")}" ${timing}/></path></mask>
-</defs>
-<g clip-path="url(#scope)">
+</defs>`;
+  const body = `<g clip-path="url(#scope)">
 ${scope.join("\n")}
 ${blips.join("\n")}
 ${track}
@@ -148,6 +168,54 @@ ${sweep}
 <g opacity="0.92"><g transform="scale(${craft.scale})">${craft.draw(T)}</g>
   <animateMotion path="${d}" rotate="auto" keyPoints="${[...bounds.map((b) => r(b / length)), 1].join(";")}" ${timing}/>
 </g>
+</g>`;
+
+  if (!cockpit) return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
+<title>Flight Path Radar: ${craft.name}</title>
+${defs}
+${body}
+</svg>`;
+
+  const targets = cells.filter((c) => c.level > 0).length;
+  const span = range ? (range.from.endsWith("-01-01") && range.to === `${range.from.slice(0, 4)}-12-31` ? range.from.slice(0, 4) : `${range.from} TO ${range.to}`) : "LAST 12 MONTHS";
+  return cockpitFrame(T, { defs, body, scale, W, H, user, span, craft, targets, days: cells.length, loop: Math.round(dur) });
+}
+
+const text = (x, y, s, { size = 11, fill, anchor = "start", weight = "", extra = "", children = "" }) =>
+  `<text x="${f(x)}" y="${f(y)}" font-size="${size}" fill="${fill}" text-anchor="${anchor}"` +
+  `${weight ? ` font-weight="${weight}"` : ""}${extra}>${esc(s)}${children}</text>`;
+
+// Header, bezel panel with corner brackets and an annunciator strip, laid out like Cockpit Telemetry.
+function cockpitFrame(T, { defs, body, scale, W, H, user, span, craft, targets, days, loop }) {
+  const px = GUTTER, py = 56, pw = COCKPIT_W - GUTTER * 2, ph = 26 + H * scale + 12;
+  const ay = py + ph + 10, CH = ay + 20 + GUTTER;
+  const b = 10, c = (x, y, dx, dy) => `M${x + dx * b},${y}L${x},${y}L${x},${y + dy * b}`;
+  const lamps = [["RADAR ACTIVE", true], [`TGT ${targets}`, false], [`CRAFT ${craft.name.toUpperCase()}`, false],
+    [`DAYS ${days}`, false], [`LOOP ${loop}S`, false]];
+  let lx = GUTTER;
+  const strip = lamps.map(([l, lit]) => {
+    const w = l.length * 6.6 + 18;
+    const g = `<rect x="${f(lx)}" y="${f(ay)}" width="${f(w)}" height="20" rx="3" fill="${lit ? T.lit : T.panel}" stroke="${lit ? T.text : T.border}"/>` +
+      text(lx + w / 2, ay + 14, l, { size: 10, anchor: "middle", fill: lit ? T.text : T.dim, weight: lit ? 700 : "",
+        children: lit ? `<animate attributeName="opacity" values="1;0.55;1" dur="2.4s" repeatCount="indefinite"/>` : "" });
+    lx += w + 8;
+    return g;
+  }).join("\n");
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${COCKPIT_W} ${f(CH)}" width="${COCKPIT_W}" height="${f(CH)}" font-family="${FONT}">
+<title>Flight Path Radar: ${esc(user)}</title>
+<rect width="${COCKPIT_W}" height="${f(CH)}" rx="10" fill="${T.frame}"/>
+${text(GUTTER, 34, "FLIGHT PATH RADAR", { size: 18, fill: T.text, weight: 700, extra: ` letter-spacing="3"` })}
+${user ? text(286, 34, `CALLSIGN ${user.toUpperCase()}`, { size: 11, fill: T.lock, extra: ` letter-spacing="1.5"` }) : ""}
+${text(COCKPIT_W - GUTTER, 34, span, { size: 14, fill: T.text, anchor: "end" })}
+<line x1="${GUTTER}" y1="46" x2="${COCKPIT_W - GUTTER}" y2="46" stroke="${T.border}"/>
+<rect x="${px}" y="${py}" width="${pw}" height="${f(ph)}" rx="6" fill="${T.panel}" stroke="${T.border}"/>
+<path d="${c(px, py, 1, 1)}${c(px + pw, py, -1, 1)}${c(px, py + ph, 1, -1)}${c(px + pw, py + ph, -1, -1)}" fill="none" stroke="${T.dim}" stroke-width="1.5"/>
+${text(px + 12, py + 16, "TACTICAL RADAR", { size: 10, fill: T.dim, weight: 700, extra: ` letter-spacing="1.5"` })}
+<g transform="translate(${px + 12} ${py + 26}) scale(${r(scale)})">
+${defs}
+${body}
 </g>
+${strip}
 </svg>`;
 }

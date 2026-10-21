@@ -1,13 +1,13 @@
 #!/usr/bin/env node
-// Usage: node src/cli.mjs [--year YYYY | --from YYYY-MM-DD --to YYYY-MM-DD] <github_user> <output.svg[?plane=b2]> [more outputs...]
+// Usage: node src/cli.mjs [--year YYYY | --from YYYY-MM-DD --to YYYY-MM-DD] <github_user> <output.svg[?plane=b2&theme=cockpit]> [more outputs...]
 // Reads GITHUB_TOKEN from the environment when set.
 import fs from "node:fs";
 import path from "node:path";
 import { getGrid, resolveRange } from "./grid.mjs";
-import { buildSvg } from "./render.mjs";
+import { buildSvg, DEFAULT_THEME } from "./render.mjs";
 import { DEFAULT_PLANE } from "./planes.mjs";
 
-const USAGE = "Usage: node src/cli.mjs [--year YYYY | --from YYYY-MM-DD --to YYYY-MM-DD] <github_user> <output.svg[?plane=b2]> [more outputs...]";
+const USAGE = "Usage: node src/cli.mjs [--year YYYY | --from YYYY-MM-DD --to YYYY-MM-DD] <github_user> <output.svg[?plane=b2&theme=cockpit]> [more outputs...]";
 
 // --year/--from/--to flags, falling back to FLIGHT_PATH_YEAR/FROM/TO (set by the Action).
 const opts = { year: process.env.FLIGHT_PATH_YEAR, from: process.env.FLIGHT_PATH_FROM, to: process.env.FLIGHT_PATH_TO };
@@ -38,8 +38,17 @@ console.log(`${user}${span}: ${cells.length} days, ${cells.filter((c) => c.level
 
 for (const out of outputs) {
   const [file, query = ""] = out.split("?");
-  const plane = new URLSearchParams(query).get("plane") || process.env.FLIGHT_PATH_PLANE || DEFAULT_PLANE;
+  const params = new URLSearchParams(query);
+  const plane = params.get("plane") || process.env.FLIGHT_PATH_PLANE || DEFAULT_PLANE;
+  const theme = params.get("theme") || process.env.FLIGHT_PATH_THEME || DEFAULT_THEME;
+  let svg;
+  try {
+    svg = buildSvg(cells, { plane, theme, user, range });
+  } catch (e) {
+    console.error(`Error: ${e.message}`);
+    process.exit(1);
+  }
   fs.mkdirSync(path.dirname(path.resolve(file)), { recursive: true });
-  fs.writeFileSync(file, buildSvg(cells, { plane }));
-  console.log(`wrote ${file} (${plane})`);
+  fs.writeFileSync(file, svg);
+  console.log(`wrote ${file} (${plane}, ${theme})`);
 }

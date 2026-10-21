@@ -11,14 +11,19 @@ inputs:
     required: true
   outputs:
     description: |
-      One output file per line. Add ?plane=<name> to pick the plane for that file.
-      Planes: b2, f117, f22, sr71, biplane. Example: dist/flight-path.svg?plane=f117
+      One output file per line. Add ?plane=<name> and/or ?theme=<name> to pick them for that file.
+      Planes: b2, f117, f22, sr71, biplane. Themes: radar, cockpit.
+      Example: dist/flight-path.svg?plane=f117&theme=cockpit
     required: false
     default: dist/flight-path.svg
   plane:
     description: Default plane for outputs that don't set ?plane=.
     required: false
     default: b2
+  theme:
+    description: Default theme for outputs that don't set ?theme=. "radar" (scope only) or "cockpit" (framed to match Cockpit Telemetry).
+    required: false
+    default: radar
   year:
     description: Calendar year to show, e.g. 2025. Leave empty for the last 12 months. Can't be combined with from/to.
     required: false
@@ -46,6 +51,7 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
         FLIGHT_PATH_PLANE: ${{ inputs.plane }}
+        FLIGHT_PATH_THEME: ${{ inputs.theme }}
         FLIGHT_PATH_YEAR: ${{ inputs.year }}
         FLIGHT_PATH_FROM: ${{ inputs.from }}
         FLIGHT_PATH_TO: ${{ inputs.to }}

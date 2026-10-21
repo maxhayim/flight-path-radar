@@ -31,6 +31,7 @@
 
 <ul>
   <li><strong>Radar-screen look:</strong> dark scope with grid lines, dashed range rings, a crosshair and a rotating sweep</li>
+  <li><strong>Two themes:</strong> the radar scope on its own, or a <code>cockpit</code> frame that matches <a href="https://github.com/maxhayim/cockpit-telemetry">Cockpit Telemetry</a> (see <a href="#themes">Themes</a>)</li>
   <li><strong>Five planes</strong>, chosen per output file with <code>?plane=</code>: B-2 Spirit, F-117 Nighthawk, F-22 Raptor, SR-71 Blackbird and a Biplane (see <a href="#planes">Planes</a>)</li>
   <li><strong>Variable speed:</strong> slow between neighbouring blips, eased acceleration across long gaps</li>
   <li><strong>Lock-on effect:</strong> each contributed day flashes amber and goes dark as the plane passes, with a dotted track left behind</li>
@@ -51,6 +52,20 @@
   <tr><td>SR-71 Blackbird</td><td><code>sr71</code></td><td><a href="examples/sr71.svg">examples/sr71.svg</a></td></tr>
   <tr><td>Biplane</td><td><code>biplane</code></td><td><a href="examples/biplane.svg">examples/biplane.svg</a></td></tr>
 </table>
+
+<h2>Themes</h2>
+
+<p>Choose a theme per output file with <code>?theme=</code>, or for every file with the <code>theme</code> input.</p>
+
+<table>
+  <tr><th>Theme</th><th><code>theme=</code></th><th>Preview</th></tr>
+  <tr><td>Radar (default): the scope on its own, sized to the grid</td><td><code>radar</code></td><td><a href="examples/b2.svg">examples/b2.svg</a></td></tr>
+  <tr><td>Cockpit: 960px wide, framed to sit under <a href="https://github.com/maxhayim/cockpit-telemetry">Cockpit Telemetry</a> with the same header, bezel panel, corners and annunciator strip</td><td><code>cockpit</code></td><td><a href="examples/cockpit.svg">examples/cockpit.svg</a></td></tr>
+</table>
+
+<p align="center">
+  <img src="examples/cockpit.svg" alt="Flight Path Radar: cockpit theme" width="100%"/>
+</p>
 
 <h2>Requirements</h2>
 
@@ -85,6 +100,7 @@
              outputs: |
                dist/flight-path.svg
                dist/flight-path-f117.svg?plane=f117
+            dist/flight-path-cockpit.svg?theme=cockpit
 
          - uses: crazy-max/ghaction-github-pages@v4
            with:
@@ -109,8 +125,9 @@
 <table>
   <tr><th>Input</th><th>Default</th><th>Description</th></tr>
   <tr><td><code>github_user_name</code></td><td>(required)</td><td>User whose contribution grid to fly over.</td></tr>
-  <tr><td><code>outputs</code></td><td><code>dist/flight-path.svg</code></td><td>One file per line. Add <code>?plane=&lt;name&gt;</code> to choose the plane for that file.</td></tr>
+  <tr><td><code>outputs</code></td><td><code>dist/flight-path.svg</code></td><td>One file per line. Add <code>?plane=&lt;name&gt;</code> and/or <code>?theme=&lt;name&gt;</code> to choose them for that file, e.g. <code>dist/flight-path.svg?plane=f117&amp;theme=cockpit</code>.</td></tr>
   <tr><td><code>plane</code></td><td><code>b2</code></td><td>Plane for outputs that don't set <code>?plane=</code>.</td></tr>
+  <tr><td><code>theme</code></td><td><code>radar</code></td><td>Theme for outputs that don't set <code>?theme=</code>: <code>radar</code> or <code>cockpit</code>.</td></tr>
   <tr><td><code>year</code></td><td>(empty)</td><td>Calendar year to show, e.g. <code>2025</code>. Can't be combined with <code>from</code>/<code>to</code>.</td></tr>
   <tr><td><code>from</code></td><td>(empty)</td><td>Start date (<code>YYYY-MM-DD</code>) of a custom range.</td></tr>
   <tr><td><code>to</code></td><td>(empty)</td><td>End date (<code>YYYY-MM-DD</code>) of a custom range. Defaults to one year after <code>from</code>, or today.</td></tr>
@@ -162,7 +179,7 @@ GITHUB_TOKEN=$(gh auth token) node src/cli.mjs --from 2026-03-01 --to 2026-09-30
 <h2>Known Limitations</h2>
 
 <ul>
-  <li><strong>Dark theme only.</strong> The radar look is designed for dark backgrounds, so it stands out as a dark panel on GitHub's light theme.</li>
+  <li><strong>Dark only.</strong> Both themes are designed for dark backgrounds, so they stand out as a dark panel on GitHub's light theme.</li>
   <li><strong>Loop length depends on your activity.</strong> More contributed days means a longer loop, often a minute or more.</li>
   <li><strong>Private contributions</strong> only count if you have enabled "Include private contributions on my profile" in your GitHub settings.</li>
   <li><strong>Profile image caching.</strong> GitHub caches README images, so a fresh SVG can take a few minutes to show on your profile.</li>
@@ -183,6 +200,7 @@ Full license text: https://opensource.org/licenses/MIT
 
 <ul>
   <li><a href="https://github.com/Platane/snk">Platane/snk</a>: the contribution-grid snake that inspired this project</li>
+  <li><a href="https://github.com/maxhayim/cockpit-telemetry">maxhayim/cockpit-telemetry</a>: animated glass-cockpit dashboard of your GitHub stats; the <code>cockpit</code> theme is designed to sit alongside it</li>
   <li><a href="https://github.com/Platane/snk/pull/205">Platane/snk#205</a>: the calendar year and date range proposal that inspired the <code>year</code>/<code>from</code>/<code>to</code> inputs</li>
   <li><a href="https://github.com/crazy-max/ghaction-github-pages">crazy-max/ghaction-github-pages</a>: used in the example workflow to publish the SVG</li>
 </ul>
